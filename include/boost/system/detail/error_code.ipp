@@ -373,29 +373,29 @@ namespace
     for (;;)
     {
         DWORD retval = ::FormatMessageW(
-            FORMAT_MESSAGE_FROM_SYSTEM |
-            FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL,
-            ev,
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-            &buf[0],
-            buf.size(),
-            NULL
-        );
+          FORMAT_MESSAGE_FROM_SYSTEM |
+          FORMAT_MESSAGE_IGNORE_INSERTS,
+          NULL,
+          ev,
+          MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+          &buf[0],
+          static_cast<DWORD>(buf.size()),
+          NULL
+      );
         
         if (retval > 0)
-        {
+      {
             buf.resize(retval);
-            break;
-        }
-        else if ( ::GetLastError() != ERROR_INSUFFICIENT_BUFFER )
-        {
-            return std::string("Unknown error");
-        }
-        else
-        {
+        break;
+      }
+      else if ( ::GetLastError() != ERROR_INSUFFICIENT_BUFFER )
+      {
+        return std::string("Unknown error");
+      }
+      else
+      {
             buf.resize(buf.size() + buf.size() / 2);
-        }
+      }
     }
     
     int num_chars = (buf.size() + 1) * 2;
