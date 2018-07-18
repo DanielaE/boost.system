@@ -43,6 +43,10 @@
 # define BOOST_SYSTEM_HAS_CONSTEXPR
 #endif
 
+#if defined(_MSC_VER) && defined(BOOST_SYSTEM_DYN_LINK)
+# undef BOOST_SYSTEM_HAS_CONSTEXPR
+#endif
+
 #if defined(__GNUC__) && (__GNUC__ == 7 && __GNUC_MINOR__ < 4) && __cplusplus >= 201700L
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=83835
 #  undef BOOST_SYSTEM_HAS_CONSTEXPR
