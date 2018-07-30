@@ -324,10 +324,10 @@ namespace boost
 
       virtual const char *     name() const BOOST_SYSTEM_NOEXCEPT = 0;
       virtual std::string      message( int ev ) const = 0;
-      inline virtual error_condition  default_error_condition( int ev ) const 
+      inline virtual error_condition  default_error_condition( int ev ) const
         BOOST_SYSTEM_NOEXCEPT;
       inline virtual bool             equivalent( int code,
-                                           const error_condition & condition ) const 
+                                           const error_condition & condition ) const
         BOOST_SYSTEM_NOEXCEPT;
       inline virtual bool             equivalent( const error_code & code,
                                            int condition ) const  BOOST_SYSTEM_NOEXCEPT;
@@ -354,12 +354,6 @@ namespace boost
 namespace detail
 {
 
-#ifdef BOOST_ERROR_CODE_HEADER_ONLY
-# define BOOST_SYSTEM_DECL_
-#else
-# define BOOST_SYSTEM_DECL_ BOOST_SYSTEM_DECL
-#endif
-
 class generic_error_category: public error_category
 {
 public:
@@ -375,7 +369,7 @@ public:
         return "generic";
     }
 
-    BOOST_SYSTEM_DECL_ std::string message( int ev ) const;
+    BOOST_SYSTEM_DECL std::string message( int ev ) const;
 };
 
 class system_error_category: public error_category
@@ -391,11 +385,9 @@ public:
         return "system";
     }
 
-    BOOST_SYSTEM_DECL_ std::string message( int ev ) const;
-    BOOST_SYSTEM_DECL_ error_condition default_error_condition( int ev ) const BOOST_SYSTEM_NOEXCEPT;
+    BOOST_SYSTEM_DECL std::string message( int ev ) const;
+    BOOST_SYSTEM_DECL error_condition default_error_condition( int ev ) const BOOST_SYSTEM_NOEXCEPT;
 };
-
-#undef BOOST_SYSTEM_DECL_
 
 } // namespace detail
 
@@ -408,9 +400,7 @@ public:
 #endif
 #endif
 
-#if defined(BOOST_ERROR_CODE_HEADER_ONLY)
-
-# if defined(BOOST_SYSTEM_HAS_CONSTEXPR)
+#if defined(BOOST_SYSTEM_HAS_CONSTEXPR)
 
 namespace detail
 {
@@ -428,80 +418,20 @@ template<class T> BOOST_SYSTEM_REQUIRE_CONST_INIT generic_error_category cat_hol
 
 constexpr const error_category & system_category() BOOST_SYSTEM_NOEXCEPT
 {
-    return detail::cat_holder<void>::system_category_instance;
+	return detail::cat_holder<void>::system_category_instance;
 }
 
 constexpr const error_category & generic_category() BOOST_SYSTEM_NOEXCEPT
 {
-    return detail::cat_holder<void>::generic_category_instance;
+	return detail::cat_holder<void>::generic_category_instance;
 }
 
-# else
-
-inline const error_category & system_category() BOOST_SYSTEM_NOEXCEPT
-{
-    static const detail::system_error_category system_category_instance;
-    return system_category_instance;
-}
-
-inline const error_category & generic_category() BOOST_SYSTEM_NOEXCEPT
-{
-    static const detail::generic_error_category generic_category_instance;
-    return generic_category_instance;
-}
-
-# endif
-
-#elif defined(BOOST_SYSTEM_HAS_CONSTEXPR)
-
-namespace detail
-{
-
-#if defined(BOOST_SYSTEM_SOURCE)
-
-// clang++ requires a strictly matching declaration
-BOOST_SYSTEM_DECL extern system_error_category system_category_instance;
-BOOST_SYSTEM_DECL extern generic_error_category generic_category_instance;
-
+#elif defined(BOOST_ERROR_CODE_HEADER_ONLY)
+    inline const error_category &  system_category() BOOST_SYSTEM_NOEXCEPT;
+    inline const error_category &  generic_category() BOOST_SYSTEM_NOEXCEPT;
 #else
-
-extern system_error_category system_category_instance;
-extern generic_error_category generic_category_instance;
-
-#endif
-
-} // namespace detail
-
-constexpr const error_category & system_category() BOOST_SYSTEM_NOEXCEPT
-{
-    return detail::system_category_instance;
-}
-
-constexpr const error_category & generic_category() BOOST_SYSTEM_NOEXCEPT
-{
-    return detail::generic_category_instance;
-}
-
-#else
-
-namespace detail
-{
-
-BOOST_SYSTEM_DECL const error_category & system_category_ncx() BOOST_SYSTEM_NOEXCEPT;
-BOOST_SYSTEM_DECL const error_category & generic_category_ncx() BOOST_SYSTEM_NOEXCEPT;
-
-} // namespace detail
-
-inline const error_category & system_category() BOOST_SYSTEM_NOEXCEPT
-{
-    return detail::system_category_ncx();
-}
-
-inline const error_category & generic_category() BOOST_SYSTEM_NOEXCEPT
-{
-    return detail::generic_category_ncx();
-}
-
+    BOOST_SYSTEM_DECL const error_category &  system_category() BOOST_SYSTEM_NOEXCEPT;
+    BOOST_SYSTEM_DECL const error_category &  generic_category() BOOST_SYSTEM_NOEXCEPT;
 #endif
 
     //  deprecated synonyms ------------------------------------------------------------//
@@ -744,7 +674,7 @@ inline const error_category & generic_category() BOOST_SYSTEM_NOEXCEPT
     //  "throws" function in namespace boost rather than namespace boost::system.
 
   }  // namespace system
-                                                               
+
   namespace detail
   {
     //  Misuse of the error_code object is turned into a noisy failure by

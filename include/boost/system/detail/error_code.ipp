@@ -43,14 +43,19 @@ namespace detail
 {
 
 #ifdef BOOST_ERROR_CODE_HEADER_ONLY
-# define BOOST_SYSTEM_DECL_ inline
+# define BOOST_SYSTEM_LINKAGE inline
 #else
-# define BOOST_SYSTEM_DECL_ BOOST_SYSTEM_DECL
+# define BOOST_SYSTEM_LINKAGE BOOST_SYSTEM_DECL
 #endif
 
   //  generic_error_category implementation  ---------------------------------//
-
-  BOOST_SYSTEM_DECL_ std::string generic_error_category::message( int ev ) const
+#if 0
+  BOOST_SYSTEM_LINKAGE const char * generic_error_category::name() const BOOST_SYSTEM_NOEXCEPT
+  {
+    return "generic";
+  }
+#endif
+  BOOST_SYSTEM_LINKAGE std::string generic_error_category::message( int ev ) const
   {
     using namespace boost::system::errc;
 #if defined(__PGI)
@@ -142,8 +147,13 @@ namespace detail
   # endif  // else use strerror_r
   }
   //  system_error_category implementation  --------------------------------------------//
-
-  BOOST_SYSTEM_DECL_ error_condition system_error_category::default_error_condition( int ev ) const
+#if 0
+  BOOST_SYSTEM_LINKAGE const char * system_error_category::name() const BOOST_SYSTEM_NOEXCEPT
+  {
+    return "system";
+  }
+#endif
+  BOOST_SYSTEM_LINKAGE error_condition system_error_category::default_error_condition( int ev ) const
     BOOST_SYSTEM_NOEXCEPT
   {
     using namespace boost::system::errc;
@@ -348,13 +358,13 @@ namespace detail
 
 # if !defined( BOOST_WINDOWS_API )
 
-  BOOST_SYSTEM_DECL_ std::string system_error_category::message( int ev ) const
+  BOOST_SYSTEM_LINKAGE std::string system_error_category::message( int ev ) const
   {
     return generic_category().message( ev );
   }
 # else
 
-  BOOST_SYSTEM_DECL_ std::string system_error_category::message( int ev ) const
+  BOOST_SYSTEM_LINKAGE std::string system_error_category::message( int ev ) const
   {
 #if defined(UNDER_CE) || BOOST_PLAT_WINDOWS_RUNTIME || defined(BOOST_NO_ANSI_APIS)
     std::wstring buf(128, wchar_t());
@@ -371,7 +381,7 @@ namespace detail
             static_cast<boost::winapi::DWORD_>(buf.size()),
             NULL
         );
-        
+
         if (retval > 0)
         {
             buf.resize(retval);
@@ -387,7 +397,7 @@ namespace detail
             buf.resize(buf.size() + buf.size() / 2);
         }
     }
-    
+
     int num_chars = static_cast<int>(buf.size() + 1) * 2;
 
     boost::winapi::LPSTR_ narrow_buffer =
@@ -433,8 +443,6 @@ namespace detail
   }
 # endif
 
-#undef BOOST_SYSTEM_DECL_
-
 } // namespace detail
 
 
@@ -446,51 +454,21 @@ namespace detail
                                          //  address for comparison purposes
 # endif
 
-#if defined(BOOST_ERROR_CODE_HEADER_ONLY)
+# if !defined(BOOST_SYSTEM_HAS_CONSTEXPR)
 
-// defined in error_code.hpp
+    BOOST_SYSTEM_LINKAGE const error_category & system_category() BOOST_SYSTEM_NOEXCEPT
+    {
+      static const detail::system_error_category  system_category_const;
+      return system_category_const;
+    }
 
-#elif defined(BOOST_SYSTEM_HAS_CONSTEXPR)
-
-namespace detail
-{
-
-BOOST_SYSTEM_REQUIRE_CONST_INIT BOOST_SYSTEM_DECL system_error_category system_category_instance;
-BOOST_SYSTEM_REQUIRE_CONST_INIT BOOST_SYSTEM_DECL generic_error_category generic_category_instance;
-
-BOOST_SYSTEM_DECL const error_category & system_category_ncx() BOOST_SYSTEM_NOEXCEPT
-{
-    return system_category_instance;
-}
-
-BOOST_SYSTEM_DECL const error_category & generic_category_ncx() BOOST_SYSTEM_NOEXCEPT
-{
-    return generic_category_instance;
-}
-
-} // namespace detail
-
-#else
-
-namespace detail
-{
-
-BOOST_SYSTEM_DECL const error_category & system_category_ncx() BOOST_SYSTEM_NOEXCEPT
-{
-    static const detail::system_error_category system_category_instance;
-    return system_category_instance;
-}
-
-BOOST_SYSTEM_DECL const error_category & generic_category_ncx() BOOST_SYSTEM_NOEXCEPT
-{
-    static const detail::generic_error_category generic_category_instance;
-    return generic_category_instance;
-}
-
-} // namespace detail
+    BOOST_SYSTEM_LINKAGE const error_category & generic_category() BOOST_SYSTEM_NOEXCEPT
+    {
+      static const detail::generic_error_category generic_category_const;
+      return generic_category_const;
+    }
 
 #endif
 
-} // namespace system
-
+  } // namespace system
 } // namespace boost
