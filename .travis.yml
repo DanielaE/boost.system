@@ -13,6 +13,7 @@ branches:
     - master
     - develop
     - /feature\/.*/
+    - /fix\/.*/
 
 env:
   matrix:
